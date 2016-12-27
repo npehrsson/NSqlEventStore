@@ -60,6 +60,7 @@ FETCH NEXT @take ROWS ONLY";
             }
 
             HasMore = results.Count == Take;
+            CurrentPosition = CurrentPosition + results.Count; 
 
             return results;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NSqlEventStore.Tests {
@@ -51,6 +52,25 @@ namespace NSqlEventStore.Tests {
                 var items = stream.GetNext();
                 results.AddRange(items);
             }
+        }
+
+        [Fact]
+        public void LoadTest() {
+            var eventStore = CreateEventStore();
+            var streamId = Guid.Parse("0FD6214D-A2A4-4898-BFD8-5B89678B387E");
+
+            Parallel.For(0, 10, x => {
+                var events = new List<EventData>();
+
+                for (var i = 0; i < 800; i++) {
+                    events.Add(new EventData() {
+                        Data = Encoding.ASCII.GetBytes("Niclas is King, adasasdasf dfgdfgdf dgdfgdfg d gd d gdfgdf df "),
+                        EventType = "StringMessage"
+                    });
+                }
+
+                eventStore.Append(streamId, ExpectedVersion.Any, events.ToArray());
+            });
         }
 
         private EventStore CreateEventStore() {

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace NSqlEventStore {
     internal class EventAppender {
         private readonly Func<IDbConnection> _connectionFactory;
+        private const int MaxBatchSize = 500;
 
         public EventAppender(Func<IDbConnection> connectionFactory) {
             _connectionFactory = connectionFactory;
@@ -17,41 +19,54 @@ namespace NSqlEventStore {
                 : DoNotRetryStrategy.Singleton;
 
             ExecuteCommand(connection => {
-                var command = connection.CreateCommand();
+                var commands = new List<IDbCommand>();
+                var processedEvents = 0;
 
-                AppendStreamId(command, streamId);
+                while (events.Length > processedEvents) {
+                    var command = connection.CreateCommand();
+                    AppendStreamId(command, streamId);
 
-                if (expectedVersion == ExpectedVersion.Any) {
-                    PrepareCommandWithCurrentSequenceNumber(command, streamId);
+                    if (expectedVersion == ExpectedVersion.Any) {
+                        PrepareCommandWithCurrentSequenceNumber(command, streamId);
+                    }
+                    else {
+                        PrepareCommandWithExplicitSetSequenceNumber(command, expectedVersion);
+                    }
+
+                    PrepareCommandWithEvents(command, events
+                        .Skip(processedEvents)
+                        .Take(MaxBatchSize)
+                        .ToList());
+
+                    processedEvents = processedEvents + MaxBatchSize;
+
+                    commands.Add(command);
                 }
-                else {
-                    PrepareCommandWithExplicitSetSequenceNumber(command, expectedVersion);
-                }
 
-                PrepareCommandWithEvents(command, events);
-
-                return command;
+                return commands;
             }, retryStrategy, events.Length > 1);
         }
 
-        private void ExecuteCommand(Func<IDbConnection, IDbCommand> commandBuilder, IRetryStrategy retryStrategy, bool wrapInTransaction) {
+        private void ExecuteCommand(Func<IDbConnection, IList<IDbCommand>> commandBuilder, IRetryStrategy retryStrategy, bool wrapInTransaction) {
             try {
                 using (var connection = _connectionFactory()) {
-                    using (var command = commandBuilder(connection)) {
-                        connection.Open();
+                    var commands = commandBuilder(connection);
+                    connection.Open();
 
-                        retryStrategy.Execute(() => {
-                            if (wrapInTransaction) {
-                                using (var transaction = connection.BeginTransaction()) {
-                                    command.Transaction = transaction;
-                                    transaction.Commit();
-                                }
-                            }
-                            else {
+                    retryStrategy.Execute(() => {
+                        if (!wrapInTransaction) {
+                            commands.First().ExecuteNonQuery();
+                            return;
+                        }
+
+                        using (var transaction = connection.BeginTransaction()) {
+                            foreach (var command in commands) {
+                                command.Transaction = transaction;
                                 command.ExecuteNonQuery();
                             }
-                        });
-                    }
+                            transaction.Commit();
+                        }
+                    });
                 }
             }
             catch (SqlException e) {
@@ -81,13 +96,13 @@ SET @StreamPosition = CASE WHEN @StreamPosition IS NULL THEN 0 ELSE @StreamPosit
             command.AddParameter("@StreamPosition", DbType.Int64, expected);
         }
 
-        public static void PrepareCommandWithEvents(IDbCommand command, EventData[] events) {
+        public static void PrepareCommandWithEvents(IDbCommand command, IList<EventData> events) {
             command.AddParameter("@createdEpoch", DbType.Int64, GetEpoch());
-            command.CommandText += "INSERT INTO Events(EventId, StreamId, StreamPosition, EventType, EventData, CreatedEpoch) VALUES";
+            command.CommandText += "INSERT INTO Events(EventId, StreamId, StreamPosition, EventType, EventData, CreatedEpoch) SELECT * FROM (VALUES";
 
             var valueInserts = new List<string>();
 
-            for (var i = 0; i < events.Length; i++) {
+            for (var i = 0; i < events.Count; i++) {
                 var @event = events[i];
                 valueInserts.Add(string.Format(EventInsertValueFormat, i));
 
@@ -97,7 +112,7 @@ SET @StreamPosition = CASE WHEN @StreamPosition IS NULL THEN 0 ELSE @StreamPosit
                 command.AddParameter("@eventNumber_" + i, DbType.Int64, i + 1);
             }
 
-            command.CommandText += " " + string.Join(", ", valueInserts) + ";";
+            command.CommandText += " " + string.Join(", ", valueInserts) + ") events(eventid, streamid, streamposition, eventtype, eventdata, createdepoch) order by streamposition asc;";
         }
 
         private static readonly DateTimeOffset DateTimeOffsetStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());

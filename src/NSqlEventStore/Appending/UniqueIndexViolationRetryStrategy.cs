@@ -17,7 +17,7 @@ namespace NSqlEventStore {
                     return;
                 }
                 catch (SqlException e) {
-                    if (ExpectedVersionExceptionIdentifier.IsExpectedVersionException(e) && _performedAttempts > _maxAttempts) {
+                    if (!ExpectedVersionExceptionIdentifier.IsExpectedVersionException(e) || _performedAttempts > _maxAttempts) {
                         throw;
                     }
 
