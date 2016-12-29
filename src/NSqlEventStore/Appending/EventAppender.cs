@@ -93,11 +93,11 @@ SET @StreamPosition = CASE WHEN @StreamPosition IS NULL THEN 0 ELSE @StreamPosit
         }
 
         public static void PrepareCommandWithExplicitSetSequenceNumber(IDbCommand command, long expected) {
-            command.AddParameter("@StreamPosition", DbType.Int64, expected);
+            command.AddParameter("@StreamPosition", expected);
         }
 
         public static void PrepareCommandWithEvents(IDbCommand command, IList<EventData> events) {
-            command.AddParameter("@createdEpoch", DbType.Int64, GetEpoch());
+            command.AddParameter("@createdEpoch", GetEpoch());
             command.CommandText += "INSERT INTO Events(EventId, StreamId, StreamPosition, EventType, EventData, CreatedEpoch) SELECT * FROM (VALUES";
 
             var valueInserts = new List<string>();
@@ -108,8 +108,8 @@ SET @StreamPosition = CASE WHEN @StreamPosition IS NULL THEN 0 ELSE @StreamPosit
 
                 command.AddParameter("@eventId_" + i, @event.EventId);
                 command.AddParameter("@eventType_" + i, @event.EventType);
-                command.AddParameter("@eventData_" + i, DbType.Binary, @event.Data);
-                command.AddParameter("@eventNumber_" + i, DbType.Int64, i + 1);
+                command.AddParameter("@eventData_" + i, @event.Data);
+                command.AddParameter("@eventNumber_" + i, i + 1);
             }
 
             command.CommandText += " " + string.Join(", ", valueInserts) + ") events(eventid, streamid, streamposition, eventtype, eventdata, createdepoch) order by streamposition asc;";
@@ -119,7 +119,7 @@ SET @StreamPosition = CASE WHEN @StreamPosition IS NULL THEN 0 ELSE @StreamPosit
 
         private static long GetEpoch() {
             var epochTimeSpan = DateTime.UtcNow - DateTimeOffsetStartTime;
-            return epochTimeSpan.Milliseconds;
+            return (long)epochTimeSpan.TotalMilliseconds;
         }
     }
 }

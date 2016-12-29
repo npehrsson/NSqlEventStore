@@ -24,6 +24,14 @@ namespace NSqlEventStore {
             return command.AddParameter(name, DbType.Guid, value);
         }
 
+        public static IDbCommand AddParameter(this IDbCommand command, string name, byte[] value) {
+            return command.AddParameter(name, DbType.Binary, value);
+        }
+
+        public static IDbCommand AddParameter(this IDbCommand command, string name, long value) {
+            return command.AddParameter(name, DbType.Int64, value);
+        }
+
         public static IDbCommand AddParameter(this IDbCommand command, string name, string value) {
             return command.AddParameter(name, DbType.String, value);
         }
