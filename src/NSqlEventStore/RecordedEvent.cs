@@ -18,7 +18,6 @@ namespace NSqlEventStore {
         public string EventType { get; }
         public byte[] Data { get; }
         public long CreatedEpoch { get; }
-        // Add support for metadata
-        //public IDictionary<string, string> MetaData { get; set; } 
+        public StreamHeader StreamHeader { get; internal set; }
     }
 }

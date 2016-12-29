@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace NSqlEventStore {
     internal class StreamContinuationToken : IStreamContinuationToken {
         private readonly Func<IDbConnection> _connectionFactory;
         private readonly Action<IDbCommand> _dbCommandPreparer;
         private readonly string _query;
+        private readonly StreamHeaderLookup _streamMetalookup = new StreamHeaderLookup();
         private const string QueryEventCommandText = @"
 SELECT
     EventId,
@@ -57,10 +59,16 @@ FETCH NEXT @take ROWS ONLY";
                         }
                     }
                 }
+
+                _streamMetalookup.LoadStreams(connection, results.Select(x => x.StreamId).Distinct().ToList());
+            }
+
+            foreach (var item in results) {
+                item.StreamHeader = _streamMetalookup[item.StreamId];
             }
 
             HasMore = results.Count == Take;
-            CurrentPosition = CurrentPosition + results.Count; 
+            CurrentPosition = CurrentPosition + results.Count;
 
             return results;
         }

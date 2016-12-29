@@ -14,7 +14,7 @@ namespace NSqlEventStore.Tests {
 
             var streamId = Guid.Parse("0FD6214D-A2A4-4898-BFD8-5B89678B387E");
 
-            eventStore.Append(streamId, 1, new EventData() {
+            eventStore.Append(streamId, ExpectedVersion.Any, new EventData() {
                 Data = Encoding.ASCII.GetBytes("Niclas is King, adasasdasf dfgdfgdf dgdfgdfg d gd d gdfgdf df "),
                 EventType = "StringMessage"
             },
@@ -37,6 +37,18 @@ namespace NSqlEventStore.Tests {
                 var items = stream.GetNext();
                 results.AddRange(items);
             }
+        }
+
+        [Fact]
+        public void WriteStreamMetaData() {
+            var eventStore = CreateEventStore();
+
+            var streamId = Guid.Parse("0FD6214D-A2A4-4898-BFD8-5B89678B387E");
+
+            eventStore.SetStreamMetaData(streamId, new Dictionary<string, string>() {
+                {
+                    "Name", "Niclas"
+                }});
         }
 
         [Fact]
