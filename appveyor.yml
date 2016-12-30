@@ -8,3 +8,6 @@ install:
 
 before_build:
     appveyor-retry nuget restore
+
+services:
+    mssql2016
