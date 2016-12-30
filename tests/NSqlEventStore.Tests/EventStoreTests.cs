@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NSqlEventStore.Tests {
     public class EventStoreTests {
-        private const string AppVeyorConenctionString = @"Server=(local)\SQL2016;Database=master;User ID=sa;Password=Password12!";
+        private const string AppVeyorConenctionString = @"Server=(local)\SQL2016;Database=EventSourcingTests;User ID=sa;Password=Password12!";
         private const string LocalConnectionString = "Server=(local);Database=EventSourcingTests;Trusted_Connection=True;";
 
         private static string ConnectionString => Environment.GetEnvironmentVariable("APPVEYOR") == "True" ? AppVeyorConenctionString : LocalConnectionString;
