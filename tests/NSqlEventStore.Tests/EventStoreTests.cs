@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -90,6 +91,7 @@ namespace NSqlEventStore.Tests {
 
         private EventStore CreateEventStore() {
             SqlManager.Recreate(ConnectionString);
+            new SchemaUpdater(() => new SqlConnection(ConnectionString)).Execute();
             return new EventStore(ConnectionString);
         }
     }
