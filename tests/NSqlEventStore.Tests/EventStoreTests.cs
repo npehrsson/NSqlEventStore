@@ -69,7 +69,7 @@ namespace NSqlEventStore.Tests {
             }
         }
 
-        [Fact]
+        [Fact(Skip = "To heavy")]
         public void LoadTest() {
             var eventStore = CreateEventStore();
             var streamId = Guid.Parse("0FD6214D-A2A4-4898-BFD8-5B89678B387E");
@@ -89,7 +89,7 @@ namespace NSqlEventStore.Tests {
         }
 
         private EventStore CreateEventStore() {
-            //SqlManager.Recreate(ConnectionString);
+            SqlManager.Recreate(ConnectionString);
             return new EventStore(ConnectionString);
         }
     }

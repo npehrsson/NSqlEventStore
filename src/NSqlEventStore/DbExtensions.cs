@@ -32,6 +32,10 @@ namespace NSqlEventStore {
             return command.AddParameter(name, DbType.Int64, value);
         }
 
+        public static IDbCommand AddParameter(this IDbCommand command, string name, int value) {
+            return command.AddParameter(name, DbType.Int32, value);
+        }
+
         public static IDbCommand AddParameter(this IDbCommand command, string name, string value) {
             return command.AddParameter(name, DbType.String, value);
         }

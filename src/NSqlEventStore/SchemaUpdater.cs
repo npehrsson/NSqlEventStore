@@ -16,8 +16,8 @@ BEGIN
 	    [EventType] [nvarchar](250) NOT NULL,
 	    [EventData] [varbinary](max) NOT NULL,
 	    [StreamPosition] [int] NOT NULL,
-	    [StorePosition] [int] IDENTITY(1,1) NOT NULL,
-	    [CreatedEpoch] [int] NOT NULL
+	    [StorePosition] [bigint] IDENTITY(1,1) NOT NULL,
+	    [CreatedEpoch] [bigint] NOT NULL
     )
 
     CREATE UNIQUE INDEX IX_StreamId_SequenceNumber ON [Events] ([StreamId], [StreamPosition])
@@ -29,7 +29,7 @@ BEGIN
 	    [Id] [uniqueidentifier] CONSTRAINT [PK_StreamMetaData] PRIMARY KEY CLUSTERED NOT NULL,
 	    [StreamId] [uniqueidentifier] NOT NULL,
 	    [Key] [nvarchar](250) NOT NULL,
-	    [Value] [nvarchar](max) NOT NULL
+	    [Value] [nvarchar](450) NOT NULL
     )
 
     CREATE INDEX IX_StreamId ON [StreamMetaData] ([StreamId])
