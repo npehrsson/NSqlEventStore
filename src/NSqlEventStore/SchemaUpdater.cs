@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 
 namespace NSqlEventStore {
-    internal class SchemaUpdater {
+    public class SchemaUpdater {
         private readonly Func<IDbConnection> _connectionFactory;
         private const int ThereIsAlreadyAnObjectNamedXXXXInTheDatabase = 2714;
         private static bool _hasUpdated;
