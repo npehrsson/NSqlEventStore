@@ -3,5 +3,6 @@ os: Windows Server 2012
 environment:
   EnableNuGetPackageRestore: true
 
-appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-appveyor-retry nuget restore
+install:
+    appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+    appveyor-retry nuget restore
