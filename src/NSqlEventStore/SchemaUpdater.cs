@@ -41,6 +41,10 @@ END";
             _connectionFactory = connectionFactory;
         }
 
+        public static void ResetCachedUpdater() {
+            _hasUpdated = false;
+        }
+
         public void Execute() {
             if (_hasUpdated) {
                 return;

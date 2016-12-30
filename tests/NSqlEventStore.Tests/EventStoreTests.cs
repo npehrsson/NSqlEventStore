@@ -91,7 +91,7 @@ namespace NSqlEventStore.Tests {
 
         private EventStore CreateEventStore() {
             SqlManager.Recreate(ConnectionString);
-            new SchemaUpdater(() => new SqlConnection(ConnectionString)).Execute();
+            SchemaUpdater.ResetCachedUpdater();
             return new EventStore(ConnectionString);
         }
     }
