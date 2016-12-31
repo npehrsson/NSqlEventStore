@@ -7,8 +7,8 @@
     <ProjectGuid>{39E7DD1D-F846-4289-896E-681B7DC8E517}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NSqlEventSourcing</RootNamespace>
-    <AssemblyName>NSqlEventSourcing</AssemblyName>
+    <RootNamespace>NSqlEventStore</RootNamespace>
+    <AssemblyName>NSqlEventStore</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
