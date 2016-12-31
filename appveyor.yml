@@ -12,6 +12,12 @@ before_build:
 services:
     mssql2016
 
+platform:
+  - Any CPU
+
+configuration:
+  - Release
+
 build:
   publish_nuget: true
   publish_nuget_symbols: true
