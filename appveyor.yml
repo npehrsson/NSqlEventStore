@@ -22,4 +22,4 @@ deploy:
     secure: +9kig6gQ94Phc/BUJ0x/k6mwLniwicBXwMGrbsuS+to+lv882j1oPMfoNkEM9ELK
   skip_symbols: false
   symbol_server:
-  artifact: .\src\**\*.nupkg/
+  artifact: src\**\*.nupkg
