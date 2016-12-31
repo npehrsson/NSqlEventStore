@@ -12,9 +12,10 @@ before_build:
 services:
     mssql2016
 
-nuget:
-  account_feed: true
-  project_feed: true
+build:
+  publish_nuget: true
+  publish_nuget_symbols: true
+  verbosity: minimal
 
 deploy:
   provider: NuGet
