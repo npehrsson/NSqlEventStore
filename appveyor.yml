@@ -11,11 +11,7 @@ before_build:
 
 services:
     mssql2016
-
-    environment:
-  my_variable:
-    secure: +9kig6gQ94Phc/BUJ0x/k6mwLniwicBXwMGrbsuS+to+lv882j1oPMfoNkEM9ELK
-
+    
 deploy:
   provider: NuGet
   api_key:
